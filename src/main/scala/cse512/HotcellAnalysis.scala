@@ -17,10 +17,10 @@ object HotcellAnalysis {
     pickupInfo.createOrReplaceTempView("nyctaxitrips")
 
     // TODO : Begin- Keep debug until final debug is done, before submission comment extra debug lines to reduce time
-    if (HotcellUtils.DBG) {
-      //pickupInfo.show()
-      //println(pickupInfo.count())
-    }
+    /*    if (HotcellUtils.DBG) {
+          //pickupInfo.show()
+          //println(pickupInfo.count())
+        }*/
     // TODO : End- Keep debug until final debug is done, before submission comment extra debug lines to reduce time
 
     // Assign cell coordinates based on pickup points
@@ -61,22 +61,22 @@ object HotcellAnalysis {
     pickupInfo.createOrReplaceTempView("PickupPointAndDayOfTheMonthView")
 
     // TODO : Begin-Keep this line only to debug, before submission comment this line to reduce time
-    if (HotcellUtils.DBG) {
+/*    if (HotcellUtils.DBG) {
       pickupInfo.show() // Show pick up points along with day of month info.
       println("Total Available Cells(" + numCells + ")") // Total number of equally divided possible cells.
       println(pickupInfo.count()) // This should be total number of records found in input
-    }
+    }*/
     // TODO : End-Keep debug until final debug is done, before submission comment extra debug lines to reduce time
 
     val AtLocationTotalDayPickups = spark.sql("SELECT y AS Latitude, x AS Longitude, z AS DayOfMonth, COUNT(*) AS AtLocationTotalDayPickups FROM PickupPointAndDayOfTheMonthView" +
-      " WHERE y>= " + minY + " AND y<=" + maxY + " AND x <= " + maxX + " AND x >= " + minX + " AND z <= " + maxZ + " AND z>= " + minZ + " GROUP BY y,x,z ORDER BY y, x,z")
+      " WHERE y>= " + minY + " AND y<=" + maxY + " AND x <= " + maxX + " AND x >= " + minX + " AND z <= " + maxZ + " AND z>= " + minZ + " GROUP BY y,x,z ORDER BY y, x,z").persist()
     AtLocationTotalDayPickups.createOrReplaceTempView("AtLocationTotalDayPickupsView")
 
     // TODO : Begin-Keep this line only to debug, before submission comment this line to reduce time
-    if (HotcellUtils.DBG) {
+/*    if (HotcellUtils.DBG) {
       AtLocationTotalDayPickups.show() // Print total day picks for distinct location.
       println(AtLocationTotalDayPickups.count()) // Total pickups for a given date range
-    }
+    }*/
     // TODO : Begin-Keep this line only to debug, before submission comment this line to reduce time
 
     //where Xj is the attribute value for cell j.
@@ -84,9 +84,9 @@ object HotcellAnalysis {
     val xBarValue: Double = (temp.get(0).toString.toDouble) / numCells
 
     // TODO : Begin-Keep this line only to debug, before submission comment this line to reduce time
-    if (HotcellUtils.DBG) {
+/*    if (HotcellUtils.DBG) {
       //temp.show()
-    }
+    }*/
     // TODO : End-Keep debug until final debug is done, before submission comment extra debug lines to reduce time
 
     temp = spark.sql("SELECT SUM(getPowerOfTwo(AtLocationTotalDayPickups)) FROM AtLocationTotalDayPickupsView").first()
@@ -94,34 +94,34 @@ object HotcellAnalysis {
     val sValueTotal: Double = math.sqrt((innerPowerOfTwoTotal / numCells) - HotcellUtils.getPowerOfTwo(xBarValue))
 
     // TODO : Begin-Keep this line only to debug, before submission comment this line to reduce time
-    if (HotcellUtils.DBG) {
+/*    if (HotcellUtils.DBG) {
       //temp.show()
       println("Sum(XjBar) Calculation->" + xBarValue)
       println("S Value Calculation ->" + sValueTotal)
-    }
+    }*/
     // TODO : End-Keep debug until final debug is done, before submission comment extra debug lines to reduce time
 
     spark.udf.register("findResult", (nTotal: Int, pickup: Int) => (HotcellUtils.findResult(numCells, xBarValue, sValueTotal, nTotal, pickup)))
 
-    val nearCells = spark.sql("SELECT first.Latitude AS Latitude, first.Longitude AS Longitude, first.DayOfMonth as DayOfMonth, SUM(second.AtLocationTotalDayPickups) AS AtLocationTotalDayPickups, getCount(first.Latitude, first.Longitude, first.DayOfMonth) AS TotalNearCells FROM AtLocationTotalDayPickupsView first cross join AtLocationTotalDayPickupsView second where isValid(first.Latitude, first.Longitude, first.DayOfMonth, second.Latitude, second.Longitude, second.DayOfMonth) group by first.Latitude, first.Longitude, first.DayOfMonth")
+    val nearCells = spark.sql("SELECT first.Latitude AS Latitude, first.Longitude AS Longitude, first.DayOfMonth as DayOfMonth, SUM(second.AtLocationTotalDayPickups) AS AtLocationTotalDayPickups, getCount(first.Latitude, first.Longitude, first.DayOfMonth) AS TotalNearCells FROM AtLocationTotalDayPickupsView first cross join AtLocationTotalDayPickupsView second where isValid(first.Latitude, first.Longitude, first.DayOfMonth, second.Latitude, second.Longitude, second.DayOfMonth) group by first.Latitude, first.Longitude, first.DayOfMonth").persist()
     nearCells.createOrReplaceTempView("nearCells")
 
     // TODO : Begin-Keep this line only to debug, before submission comment this line to reduce time
-    if (HotcellUtils.DBG) {
+/*    if (HotcellUtils.DBG) {
       nearCells.show()
-    }
+    }*/
     // TODO : End-Keep debug until final debug is done, before submission comment extra debug lines to reduce time
 
-    val score = spark.sql("SELECT Latitude, Longitude, DayOfMonth, findResult(TotalNearCells, AtLocationTotalDayPickups) as zScore from nearCells ORDER BY zScore DESC")
+    val score = spark.sql("SELECT Latitude, Longitude, DayOfMonth, findResult(TotalNearCells, AtLocationTotalDayPickups) as zScore from nearCells ORDER BY zScore DESC").persist()
     score.createOrReplaceTempView("zScore")
     val result = spark.sql("SELECT Longitude,Latitude, DayOfMonth from zScore")
 
     // TODO : Begin-Keep this line only to debug, before submission comment this line to reduce time
-    if (HotcellUtils.DBG) {
+/*    if (HotcellUtils.DBG) {
       score.show()
       result.createOrReplaceTempView("result")
       result.show()
-    }
+    }*/
     // TODO : End-Keep debug until final debug is done, before submission comment extra debug lines to reduce time
     /** ******************** Begin : Get records *********************/
     return result

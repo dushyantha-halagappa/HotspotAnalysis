@@ -31,9 +31,10 @@ object HotzoneAnalysis {
 
     /** ***** Begin - Query Rectangle record along with count of co-ordinates falls within rectangle ********/
     val rectanglesWithCount = spark.sql("SELECT rectangle, COUNT(point) AS HotZoneAnalysis FROM joinResult GROUP BY rectangle ORDER BY rectangle ASC").persist()
-    rectanglesWithCount.createOrReplaceTempView("NyHotZoneAnalysisResult")
+
 
     //TODO : Begin - Comment debug lines before submission
+    //rectanglesWithCount.createOrReplaceTempView("NyHotZoneAnalysisResult")
     //rectanglesWithCount.show()
     //print("Output Path->("+pointPath+")")
     //TODO : End - Comment debug lines before submission

@@ -88,14 +88,14 @@ object HotcellUtils {
   def findResult(numOfCell: Double, XBarValue: Double, SValueTotal: Double, neighbours: Int, grandSum: Int): Double = {
     // TODO : Begin-Keep this line only to debug, before submission comment this line to reduce time
 
-    if (DBG) {
+/*    if (DBG) {
       println("findResult")
       println(numOfCell)
       println(XBarValue)
       println(SValueTotal)
       println(neighbours)
       println(grandSum)
-    }
+    }*/
 
     // TODO : End-Keep debug until final debug is done, before submission comment extra debug lines to reduce time
     //return cells//(latitude.toDouble - getRange(total, cells) * longitude) / (math.sqrt(((cells.toDouble * longitude) - (longitude.toDouble * longitude)) / (cells.toDouble - 1)) * (math.sqrt((grandTotal / cells) - (getRange(total, cells) * getRange(total, cells)))))
@@ -105,10 +105,10 @@ object HotcellUtils {
     val denominatorFinding = SValueTotal * math.sqrt((((numOfCell.toDouble * neighbours.toDouble) - (neighbours.toDouble * neighbours.toDouble)) / (numOfCell.toDouble - 1.0)))
 
     // TODO : Begin-Keep debug until final debug is done, before submission comment extra debug lines to reduce time
-    if (DBG) {
-      println(numeratorFinding)
-      println(denominatorFinding)
-    }
+    /*    if (DBG) {
+          println(numeratorFinding)
+          println(denominatorFinding)
+        }*/
     // TODO : End-Keep debug until final debug is done, before submission comment extra debug lines to reduce time
 
     return (numeratorFinding / denominatorFinding)
